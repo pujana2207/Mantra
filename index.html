@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Peminjaman Barang</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8fafc;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-1px);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transform: translateY(-1px);
+    }
+    
+    .nav-item {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-item.active {
+      color: #2563eb;
+    }
+    
+    .nav-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: #2563eb;
+      border-radius: 3px;
+    }
+    
+    input, select {
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    
+    input:focus, select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    
+    .table-row:hover {
+      background-color: #f8fafc;
+    }
+    
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+    }
+    
+    .badge-primary {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .badge-success {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    /* Custom select styling */
+    .custom-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 1em;
+    }
+    
+    .select-placeholder {
+      color: #9ca3af;
+    }
+    
+    /* Animation for status */
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    
+    .pulse {
+      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    /* Loading spinner */
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <header class="py-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="p-3 rounded-lg bg-blue-100 text-blue-600">
+            <i class="fas fa-box-open text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-800">Aplikasi Peminjaman Barang</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-right">
+            <p class="text-sm text-gray-500">Tanggal</p>
+            <p class="font-medium" id="current-date"></p>
+          </div>
+          <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="flex space-x-8 border-b border-gray-200 mb-8">
+      <button id="btn-form" class="nav-item active py-3 px-1 font-medium text-gray-600" onclick="showForm('form-peminjaman')">
+        <i class="fas fa-file-signature mr-2"></i>Form Peminjaman
+      </button>
+      <button id="btn-riwayat" class="nav-item py-3 px-1 font-medium text-gray-600" onclick="showForm('riwayat-peminjaman')">
+        <i class="fas fa-history mr-2"></i>Riwayat Peminjaman
+      </button>
+      <button id="btn-kembali" class="nav-item py-3 px-1 font-medium text-gray-600" onclick="showForm('barang-kembali')">
+        <i class="fas fa-undo mr-2"></i>Barang Kembali
+      </button>
+      <button id="btn-manage" class="nav-item py-3 px-1 font-medium text-gray-600" onclick="showForm('manage-data')">
+        <i class="fas fa-users-cog mr-2"></i>Kelola Data
+      </button>
+      <button id="btn-sync" class="nav-item py-3 px-1 font-medium text-gray-600 ml-auto" onclick="syncWithGoogleSheets()">
+        <i class="fas fa-sync-alt mr-2"></i>Sinkronisasi
+      </button>
+      <button id="btn-reset" class="nav-item py-3 px-1 font-medium text-gray-600" onclick="resetData()">
+        <i class="fas fa-trash-alt mr-2"></i>Reset Data
+      </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="mb-12">
+      <!-- Form Peminjaman -->
+      <div id="form-peminjaman" class="card p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+          <i class="fas fa-file-signature text-blue-500 mr-3"></i>Form Peminjaman Barang
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-sm font-medium text-gray-700">Nama Petugas</label>
+              <button onclick="showTambahPetugas()" class="text-xs text-blue-500 hover:text-blue-700">
+                <i class="fas fa-plus-circle mr-1"></i>Tambah Petugas
+              </button>
+            </div>
+            <div class="relative">
+              <select id="petugas" class="custom-select w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled selected class="select-placeholder">Pilih Petugas</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <i class="fas fa-user-tie text-gray-400"></i>
+              </div>
+            </div>
+            <p id="petugas-name" class="text-xs text-gray-500 mt-1 hidden">Nama: <span></span></p>
+          </div>
+          
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-sm font-medium text-gray-700">Nama Peminjam</label>
+              <button onclick="showTambahPeminjam()" class="text-xs text-blue-500 hover:text-blue-700">
+                <i class="fas fa-plus-circle mr-1"></i>Tambah Peminjam
+              </button>
+            </div>
+            <div class="relative">
+              <select id="peminjam" class="custom-select w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled selected class="select-placeholder">Pilih Peminjam</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <i class="fas fa-user text-gray-400"></i>
+              </div>
+            </div>
+            <p id="peminjam-name" class="text-xs text-gray-500 mt-1 hidden">Nama: <span></span></p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Barang</label>
+            <div class="relative">
+              <select id="barang" class="custom-select w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled selected class="select-placeholder">Pilih Barang</option>
+                <option value="BRG001">BRG001 - Laptop</option>
+                <option value="BRG002">BRG002 - Proyektor</option>
+                <option value="BRG003">BRG003 - Speaker</option>
+                <option value="BRG004">BRG004 - Mikrofon</option>
+                <option value="BRG005">BRG005 - Kamera</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <i class="fas fa-box text-gray-400"></i>
+              </div>
+            </div>
+            <p id="barang-name" class="text-xs text-gray-500 mt-1 hidden">Nama: <span></span></p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Seri (pisahkan koma)</label>
+            <div class="relative">
+              <input type="text" id="nomor-seri" placeholder="Contoh: 001,002,003" class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <i class="fas fa-barcode text-gray-400"></i>
+              </div>
+            </div>
+            <p id="seri-status" class="text-xs mt-1"></p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pinjam</label>
+            <div class="relative">
+              <input type="date" id="tanggal-pinjam" class="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <i class="fas fa-calendar-alt text-gray-400"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex items-end">
+            <button onclick="pinjamBarang()" class="btn-primary text-white px-6 py-2 rounded-lg font-medium flex items-center">
+              <i class="fas fa-paper-plane mr-2"></i>Pinjam Barang
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Riwayat Peminjaman -->
+      <div id="riwayat-peminjaman" class="hidden">
+        <div class="card p-6 mb-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 md:mb-0 flex items-center">
+              <i class="fas fa-history text-blue-500 mr-3"></i>Riwayat Peminjaman
+            </h2>
+            <div class="relative w-full md:w-64">
+              <input type="text" id="searchRiwayat" placeholder="Cari Riwayat..." class="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" onkeyup="renderTabel()">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="fas fa-search text-gray-400"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Petugas</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peminjam</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Barang</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Seri</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pinjam</th>
+                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tabel-riwayat" class="bg-white divide-y divide-gray-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barang Kembali -->
+      <div id="barang-kembali" class="hidden">
+        <div class="card p-6 mb-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 md:mb-0 flex items-center">
+              <i class="fas fa-undo text-blue-500 mr-3"></i>Barang Kembali
+            </h2>
+            <div class="relative w-full md:w-64">
+              <input type="text" id="searchKembali" placeholder="Cari Barang Kembali..." class="w-full pl-10 pr-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500" onkeyup="renderTabel()">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                <i class="fas fa-search text-gray-400"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Petugas</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peminjam</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Barang</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Seri</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pinjam</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Kembali</th>
+                </tr>
+              </thead>
+              <tbody id="tabel-kembali" class="bg-white divide-y divide-gray-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kelola Data -->
+      <div id="manage-data" class="hidden">
+        <div class="card p-6 mb-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-users-cog text-blue-500 mr-3"></i>Kelola Data Petugas & Peminjam
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Daftar Petugas -->
+            <div class="card p-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-800 flex items-center">
+                  <i class="fas fa-user-tie text-blue-500 mr-2"></i>Daftar Petugas
+                </h3>
+                <button onclick="showTambahPetugas()" class="btn-primary text-white px-3 py-1 rounded-md text-sm">
+                  <i class="fas fa-plus mr-1"></i>Tambah
+                </button>
+              </div>
+              
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                      <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                      <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabel-petugas" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Daftar Peminjam -->
+            <div class="card p-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-800 flex items-center">
+                  <i class="fas fa-user text-green-500 mr-2"></i>Daftar Peminjam
+                </h3>
+                <button onclick="showTambahPeminjam()" class="btn-success text-white px-3 py-1 rounded-md text-sm">
+                  <i class="fas fa-plus mr-1"></i>Tambah
+                </button>
+              </div>
+              
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+                      <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                      <th scope="col" class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabel-peminjam" class="bg-white divide-y divide-gray-200"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Inisialisasi data dari localStorage atau buat array kosong jika tidak ada
+    let dataPeminjaman = JSON.parse(localStorage.getItem('dataPeminjaman')) || [];
+    let dataKembali = JSON.parse(localStorage.getItem('dataKembali')) || [];
+    
+    // Data petugas dan peminjam dari localStorage atau default
+    let petugasData = JSON.parse(localStorage.getItem('petugasData')) || {
+      "PTG001": { code: "PTG001", name: "Admin Gudang" },
+      "PTG002": { code: "PTG002", name: "Staff TU" },
+      "PTG003": { code: "PTG003", name: "Kepala Sekolah" }
+    };
+    
+    let peminjamData = JSON.parse(localStorage.getItem('peminjamData')) || {
+      "PMJ001": { code: "PMJ001", name: "Guru Matematika" },
+      "PMJ002": { code: "PMJ002", name: "Guru Bahasa Indonesia" },
+      "PMJ003": { code: "PMJ003", name: "Guru IPA" },
+      "PMJ004": { code: "PMJ004", name: "Guru IPS" },
+      "PMJ005": { code: "PMJ005", name: "Guru Olahraga" }
+    };
+    
+    const barangData = {
+      "BRG001": { code: "BRG001", name: "Laptop" },
+      "BRG002": { code: "BRG002", name: "Proyektor" },
+      "BRG003": { code: "BRG003", name: "Speaker" },
+      "BRG004": { code: "BRG004", name: "Mikrofon" },
+      "BRG005": { code: "BRG005", name: "Kamera" }
+    };
+
+    // URL Google Apps Script (Ganti dengan URL Anda setelah deploy)
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbx1IB_JVYq7F9YMmg7yR1XHvmuKAwUBzYFCSK-De_WH6M0Cqk7MuCM23xJDd13LJ95cuQ/exec';
+
+    // Fungsi untuk menyimpan semua data ke localStorage
+    function saveAllData() {
+      localStorage.setItem('dataPeminjaman', JSON.stringify(dataPeminjaman));
+      localStorage.setItem('dataKembali', JSON.stringify(dataKembali));
+      localStorage.setItem('petugasData', JSON.stringify(petugasData));
+      localStorage.setItem('peminjamData', JSON.stringify(peminjamData));
+    }
+
+    // Fungsi untuk mengisi dropdown petugas dan peminjam
+    function fillDropdowns() {
+      const petugasSelect = document.getElementById('petugas');
+      const peminjamSelect = document.getElementById('peminjam');
+      
+      // Kosongkan dropdown terlebih dahulu
+      petugasSelect.innerHTML = '<option value="" disabled selected class="select-placeholder">Pilih Petugas</option>';
+      peminjamSelect.innerHTML = '<option value="" disabled selected class="select-placeholder">Pilih Peminjam</option>';
+      
+      // Isi dropdown petugas
+      for (const code in petugasData) {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = `${code} - ${petugasData[code].name}`;
+        petugasSelect.appendChild(option);
+      }
+      
+      // Isi dropdown peminjam
+      for (const code in peminjamData) {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = `${code} - ${peminjamData[code].name}`;
+        peminjamSelect.appendChild(option);
+      }
+    }
+
+    // Fungsi untuk render tabel petugas dan peminjam
+    function renderManageTables() {
+      const tabelPetugas = document.getElementById('tabel-petugas');
+      const tabelPeminjam = document.getElementById('tabel-peminjam');
+      
+      tabelPetugas.innerHTML = '';
+      tabelPeminjam.innerHTML = '';
+      
+      // Render tabel petugas
+      for (const code in petugasData) {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50';
+        tr.innerHTML = `
+          <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${code}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">${petugasData[code].name}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+            <button onclick="editPetugas('${code}')" class="text-blue-500 hover:text-blue-700 mr-2">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="hapusPetugas('${code}')" class="text-red-500 hover:text-red-700">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        `;
+        tabelPetugas.appendChild(tr);
+      }
+      
+      // Render tabel peminjam
+      for (const code in peminjamData) {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50';
+        tr.innerHTML = `
+          <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${code}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">${peminjamData[code].name}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+            <button onclick="editPeminjam('${code}')" class="text-blue-500 hover:text-blue-700 mr-2">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="hapusPeminjam('${code}')" class="text-red-500 hover:text-red-700">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </td>
+        `;
+        tabelPeminjam.appendChild(tr);
+      }
+    }
+
+    // Fungsi untuk menampilkan form tambah petugas
+    async function showTambahPetugas() {
+      const { value: formValues } = await Swal.fire({
+        title: 'Tambah Petugas Baru',
+        html: `
+          <div class="text-left mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Kode Petugas</label>
+            <input id="kode-petugas" class="w-full px-3 py-2 border rounded-md" placeholder="PTGxxx">
+          </div>
+          <div class="text-left">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Petugas</label>
+            <input id="nama-petugas" class="w-full px-3 py-2 border rounded-md" placeholder="Nama lengkap petugas">
+          </div>
+        `,
+        focusConfirm: false,
+        confirmButtonColor: '#3b82f6',
+        preConfirm: () => {
+          const kode = document.getElementById('kode-petugas').value.trim().toUpperCase();
+          const nama = document.getElementById('nama-petugas').value.trim();
+          
+          if (!kode || !nama) {
+            Swal.showValidationMessage('Kode dan nama petugas harus diisi');
+            return false;
+          }
+          
+          if (petugasData[kode]) {
+            Swal.showValidationMessage('Kode petugas sudah digunakan');
+            return false;
+          }
+          
+          return { kode, nama };
+        }
+      });
+      
+      if (formValues) {
+        petugasData[formValues.kode] = { code: formValues.kode, name: formValues.nama };
+        saveAllData();
+        fillDropdowns();
+        renderManageTables();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Petugas baru berhasil ditambahkan',
+          confirmButtonColor: '#3b82f6',
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }
+    }
+
+    // Fungsi untuk menampilkan form tambah peminjam
+    async function showTambahPeminjam() {
+      const { value: formValues } = await Swal.fire({
+        title: 'Tambah Peminjam Baru',
+        html: `
+          <div class="text-left mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Kode Peminjam</label>
+            <input id="kode-peminjam" class="w-full px-3 py-2 border rounded-md" placeholder="PMJxxx">
+          </div>
+          <div class="text-left">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Peminjam</label>
+            <input id="nama-peminjam" class="w-full px-3 py-2 border rounded-md" placeholder="Nama lengkap peminjam">
+          </div>
+        `,
+        focusConfirm: false,
+        confirmButtonColor: '#10b981',
+        preConfirm: () => {
+          const kode = document.getElementById('kode-peminjam').value.trim().toUpperCase();
+          const nama = document.getElementById('nama-peminjam').value.trim();
+          
+          if (!kode || !nama) {
+            Swal.showValidationMessage('Kode dan nama peminjam harus diisi');
+            return false;
+          }
+          
+          if (peminjamData[kode]) {
+            Swal.showValidationMessage('Kode peminjam sudah digunakan');
+            return false;
+          }
+          
+          return { kode, nama };
+        }
+      });
+      
+      if (formValues) {
+        peminjamData[formValues.kode] = { code: formValues.kode, name: formValues.nama };
+        saveAllData();
+        fillDropdowns();
+        renderManageTables();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Peminjam baru berhasil ditambahkan',
+          confirmButtonColor: '#10b981',
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }
+    }
+
+    // Fungsi untuk mengedit petugas
+    async function editPetugas(kode) {
+      const petugas = petugasData[kode];
+      
+      const { value: namaBaru } = await Swal.fire({
+        title: 'Edit Petugas',
+        input: 'text',
+        inputValue: petugas.name,
+        inputLabel: 'Nama Petugas',
+        inputPlaceholder: 'Masukkan nama baru',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Nama petugas tidak boleh kosong!';
+          }
+        }
+      });
+      
+      if (namaBaru) {
+        petugasData[kode].name = namaBaru;
+        saveAllData();
+        fillDropdowns();
+        renderManageTables();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Data petugas berhasil diperbarui',
+          confirmButtonColor: '#3b82f6',
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }
+    }
+
+    // Fungsi untuk mengedit peminjam
+    async function editPeminjam(kode) {
+      const peminjam = peminjamData[kode];
+      
+      const { value: namaBaru } = await Swal.fire({
+        title: 'Edit Peminjam',
+        input: 'text',
+        inputValue: peminjam.name,
+        inputLabel: 'Nama Peminjam',
+        inputPlaceholder: 'Masukkan nama baru',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#6b7280',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Nama peminjam tidak boleh kosong!';
+          }
+        }
+      });
+      
+      if (namaBaru) {
+        peminjamData[kode].name = namaBaru;
+        saveAllData();
+        fillDropdowns();
+        renderManageTables();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Data peminjam berhasil diperbarui',
+          confirmButtonColor: '#10b981',
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }
+    }
+
+    // Fungsi untuk menghapus petugas
+    async function hapusPetugas(kode) {
+      // Cek apakah petugas masih digunakan dalam data peminjaman
+      const digunakan = dataPeminjaman.some(item => item.petugas === kode);
+      
+      if (digunakan) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Tidak Dapat Dihapus',
+          text: 'Petugas ini masih digunakan dalam data peminjaman',
+          confirmButtonColor: '#3b82f6'
+        });
+        return;
+      }
+      
+      const result = await Swal.fire({
+        title: 'Hapus Petugas?',
+        text: `Anda yakin ingin menghapus petugas ${kode} - ${petugasData[kode].name}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      });
+      
+      if (result.isConfirmed) {
+        delete petugasData[kode];
+        saveAllData();
+        fillDropdowns();
+        renderManageTables();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Terhapus!',
+          text: 'Petugas berhasil dihapus',
+          confirmButtonColor: '#10b981',
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }
+    }
+
+    // Fungsi untuk menghapus peminjam
+    async function hapusPeminjam(kode) {
+      // Cek apakah peminjam masih digunakan dalam data peminjaman
+      const digunakan = dataPeminjaman.some(item => item.peminjam === kode);
+      
+      if (digunakan) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Tidak Dapat Dihapus',
+          text: 'Peminjam ini masih digunakan dalam data peminjaman',
+          confirmButtonColor: '#10b981'
+        });
+        return;
+      }
+      
+      const result = await Swal.fire({
+        title: 'Hapus Peminjam?',
+        text: `Anda yakin ingin menghapus peminjam ${kode} - ${peminjamData[kode].name}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+      });
+      
+      if (result.isConfirmed) {
+        delete peminjamData[kode];
+        saveAllData();
+        fillDropdowns();
+        renderManageTables();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Terhapus!',
+          text: 'Peminjam berhasil dihapus',
+          confirmButtonColor: '#10b981',
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }
+    }
+
+    // Fungsi untuk sinkronisasi dengan Google Sheets
+    async function syncWithGoogleSheets() {
+      const btnSync = document.getElementById('btn-sync');
+      const originalText = btnSync.innerHTML;
+      
+      try {
+        // Tampilkan loading spinner
+        btnSync.innerHTML = '<div class="loader"></div>';
+        btnSync.disabled = true;
+        
+        // Kirim data peminjaman dan pengembalian ke Google Sheets
+        const response = await fetch(scriptUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'sync',
+            dataPeminjaman: dataPeminjaman,
+            dataKembali: dataKembali,
+            petugasData: petugasData,
+            peminjamData: peminjamData
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Data berhasil disinkronisasi dengan Google Sheets',
+            confirmButtonColor: '#10b981',
+            timer: 2000,
+            timerProgressBar: true
+          });
+        } else {
+          throw new Error(result.message || 'Gagal menyinkronkan data');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal!',
+          text: 'Terjadi kesalahan saat menyinkronisasi data: ' + error.message,
+          confirmButtonColor: '#ef4444'
+        });
+      } finally {
+        // Kembalikan tombol ke keadaan semula
+        btnSync.innerHTML = originalText;
+        btnSync.disabled = false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set current date
+      const now = new Date();
+      document.getElementById('tanggal-pinjam').value = now.toISOString().split('T')[0];
+      
+      // Format and display current date
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('current-date').textContent = now.toLocaleDateString('id-ID', options);
+      
+      // Isi dropdown petugas dan peminjam
+      fillDropdowns();
+      
+      // Event listeners untuk menampilkan nama lengkap
+      document.getElementById('petugas').addEventListener('change', function() {
+        const selected = this.value;
+        const display = document.getElementById('petugas-name');
+        if (selected && petugasData[selected]) {
+          display.classList.remove('hidden');
+          display.querySelector('span').textContent = petugasData[selected].name;
+        } else {
+          display.classList.add('hidden');
+        }
+      });
+      
+      document.getElementById('peminjam').addEventListener('change', function() {
+        const selected = this.value;
+        const display = document.getElementById('peminjam-name');
+        if (selected && peminjamData[selected]) {
+          display.classList.remove('hidden');
+          display.querySelector('span').textContent = peminjamData[selected].name;
+        } else {
+          display.classList.add('hidden');
+        }
+      });
+      
+      document.getElementById('barang').addEventListener('change', function() {
+        const selected = this.value;
+        const display = document.getElementById('barang-name');
+        if (selected && barangData[selected]) {
+          display.classList.remove('hidden');
+          display.querySelector('span').textContent = barangData[selected].name;
+        } else {
+          display.classList.add('hidden');
+        }
+      });
+      
+      // Event listener untuk memeriksa nomor seri
+      document.getElementById('nomor-seri').addEventListener('input', function() {
+        checkNomorSeri();
+      });
+      
+      renderTabel();
+      renderManageTables();
+    });
+
+    function checkNomorSeri() {
+      const inputSeri = document.getElementById('nomor-seri').value;
+      const selectedBarang = document.getElementById('barang').value;
+      const statusElement = document.getElementById('seri-status');
+      
+      if (!inputSeri || !selectedBarang) {
+        statusElement.textContent = '';
+        statusElement.className = 'text-xs mt-1';
+        return;
+      }
+      
+      const nomorSeri = inputSeri.split(',').map(n => n.trim());
+      let statusText = '';
+      let statusClass = '';
+      
+      // Cek apakah nomor seri sudah dipinjam untuk barang yang sama
+      for (const item of dataPeminjaman) {
+        for (const seri of nomorSeri) {
+          if (item.nomorSeri.includes(seri) && item.barang === selectedBarang) {
+            statusText = `Nomor seri ${seri} sudah dipinjam untuk barang ini!`;
+            statusClass = 'text-xs mt-1 text-red-500 pulse';
+            break;
+          }
+        }
+        if (statusText) break;
+      }
+      
+      if (!statusText) {
+        // Cek apakah nomor seri dipinjam untuk barang yang berbeda
+        for (const item of dataPeminjaman) {
+          for (const seri of nomorSeri) {
+            if (item.nomorSeri.includes(seri)) {
+              statusText = `Nomor seri ${seri} dipinjam untuk barang lain (${barangData[item.barang]?.name || item.barang})`;
+              statusClass = 'text-xs mt-1 text-yellow-600';
+              break;
+            }
+          }
+          if (statusText) break;
+        }
+      }
+      
+      if (!statusText) {
+        statusText = 'Nomor seri tersedia';
+        statusClass = 'text-xs mt-1 text-green-500';
+      }
+      
+      statusElement.textContent = statusText;
+      statusElement.className = statusClass;
+    }
+
+    function showForm(formId) {
+      document.getElementById('form-peminjaman').classList.add('hidden');
+      document.getElementById('riwayat-peminjaman').classList.add('hidden');
+      document.getElementById('barang-kembali').classList.add('hidden');
+      document.getElementById('manage-data').classList.add('hidden');
+      document.getElementById(formId).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      if (formId === 'form-peminjaman') document.getElementById('btn-form').classList.add('active');
+      if (formId === 'riwayat-peminjaman') document.getElementById('btn-riwayat').classList.add('active');
+      if (formId === 'barang-kembali') document.getElementById('btn-kembali').classList.add('active');
+      if (formId === 'manage-data') document.getElementById('btn-manage').classList.add('active');
+    }
+
+    async function pinjamBarang() {
+      const petugas = document.getElementById('petugas').value;
+      const peminjam = document.getElementById('peminjam').value;
+      const barang = document.getElementById('barang').value;
+      const nomorSeri = document.getElementById('nomor-seri').value.split(',').map(n => n.trim());
+      const tanggal = document.getElementById('tanggal-pinjam').value;
+
+      if (!petugas || !peminjam || !barang || nomorSeri.length === 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Semua field harus diisi!',
+          confirmButtonColor: '#3b82f6'
+        });
+        return;
+      }
+
+      // Cek duplikat seri untuk barang yang sama
+      for (const item of dataPeminjaman) {
+        for (const seri of nomorSeri) {
+          if (item.nomorSeri.includes(seri) && item.barang === barang) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: `Nomor seri ${seri} sudah dipinjam untuk barang ini!`,
+              confirmButtonColor: '#3b82f6'
+            });
+            return;
+          }
+        }
+      }
+
+      const newItem = {
+        petugas, 
+        peminjam, 
+        barang, 
+        nomorSeri, 
+        jumlah: nomorSeri.length, 
+        tanggal,
+        status: 'dipinjam'
+      };
+      
+      dataPeminjaman.push(newItem);
+      
+      // Simpan data ke localStorage
+      saveAllData();
+      
+      try {
+        // Kirim data ke Google Sheets
+        const response = await fetch(scriptUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'add',
+            data: newItem
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+          console.error('Gagal menyimpan ke Google Sheets:', result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+      
+      renderTabel();
+      
+      // Clear form after submission
+      document.getElementById('petugas').value = '';
+      document.getElementById('peminjam').value = '';
+      document.getElementById('barang').value = '';
+      document.getElementById('nomor-seri').value = '';
+      document.getElementById('petugas-name').classList.add('hidden');
+      document.getElementById('peminjam-name').classList.add('hidden');
+      document.getElementById('barang-name').classList.add('hidden');
+      document.getElementById('seri-status').textContent = '';
+      document.getElementById('seri-status').className = 'text-xs mt-1';
+      
+      // Set current date again
+      const now = new Date();
+      document.getElementById('tanggal-pinjam').value = now.toISOString().split('T')[0];
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Peminjaman berhasil dicatat!',
+        confirmButtonColor: '#3b82f6',
+        timer: 2000,
+        timerProgressBar: true
+      });
+    }
+
+    function renderTabel() {
+      const searchRiwayat = document.getElementById('searchRiwayat')?.value.toLowerCase() || '';
+      const searchKembali = document.getElementById('searchKembali')?.value.toLowerCase() || '';
+
+      const riwayatTbody = document.getElementById('tabel-riwayat');
+      const kembaliTbody = document.getElementById('tabel-kembali');
+
+      if (riwayatTbody) riwayatTbody.innerHTML = '';
+      if (kembaliTbody) kembaliTbody.innerHTML = '';
+
+      // Render riwayat peminjaman
+      dataPeminjaman.forEach((item, index) => {
+        if (item.status !== 'kembali') {
+          const petugasName = petugasData[item.petugas]?.name || item.petugas;
+          const peminjamName = peminjamData[item.peminjam]?.name || item.peminjam;
+          const barangName = barangData[item.barang]?.name || item.barang;
+          
+          if (petugasName.toLowerCase().includes(searchRiwayat) || 
+              peminjamName.toLowerCase().includes(searchRiwayat) ||
+              barangName.toLowerCase().includes(searchRiwayat)) {
+            const tr = document.createElement('tr');
+            tr.className = 'table-row hover:bg-gray-50';
+            tr.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                    <i class="fas fa-user-tie"></i>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">${petugasName}</div>
+                    <div class="text-xs text-gray-500">${item.petugas}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${peminjamName}</div>
+                <div class="text-xs text-gray-500">${item.peminjam}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <i class="fas fa-box"></i>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">${barangName}</div>
+                    <div class="text-xs text-gray-500">${item.barang}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex flex-wrap gap-1">
+                  ${item.nomorSeri.map(seri => `
+                    <span class="badge badge-primary">${seri}</span>
+                  `).join('')}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                  ${item.jumlah}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${formatDate(item.tanggal)}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button onclick="kembaliBarang(${index})" class="btn-success text-white px-3 py-1 rounded-md text-sm mr-2">
+                  <i class="fas fa-check-circle mr-1"></i>Kembali
+                </button>
+                <button onclick="editBarang(${index})" class="btn-primary text-white px-3 py-1 rounded-md text-sm">
+                  <i class="fas fa-edit mr-1"></i>Edit
+                </button>
+              </td>
+            `;
+            riwayatTbody.appendChild(tr);
+          }
+        }
+      });
+
+      // Render barang kembali
+      dataKembali.forEach(item => {
+        const petugasName = petugasData[item.petugas]?.name || item.petugas;
+        const peminjamName = peminjamData[item.peminjam]?.name || item.peminjam;
+        const barangName = barangData[item.barang]?.name || item.barang;
+        
+        if (petugasName.toLowerCase().includes(searchKembali) || 
+            peminjamName.toLowerCase().includes(searchKembali) ||
+            barangName.toLowerCase().includes(searchKembali)) {
+          const tr = document.createElement('tr');
+          tr.className = 'table-row hover:bg-gray-50';
+          tr.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                  <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">${petugasName}</div>
+                  <div class="text-xs text-gray-500">${item.petugas}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">${peminjamName}</div>
+              <div class="text-xs text-gray-500">${item.peminjam}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                  <i class="fas fa-box"></i>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">${barangName}</div>
+                  <div class="text-xs text-gray-500">${item.barang}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex flex-wrap gap-1">
+                  ${item.nomorSeri.map(seri => `
+                    <span class="badge badge-primary">${seri}</span>
+                  `).join('')}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                  ${item.jumlah}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${formatDate(item.tanggal)}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <span class="badge badge-success">
+                  <i class="fas fa-check-circle mr-1"></i>${formatDate(item.tanggalKembali)}
+                </span>
+              </td>
+            `;
+            kembaliTbody.appendChild(tr);
+          }
+        });
+      }
+
+      async function kembaliBarang(index) {
+        const result = await Swal.fire({
+          title: 'Konfirmasi Pengembalian',
+          text: 'Apakah Anda yakin ingin menandai barang ini sebagai dikembalikan?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#10b981',
+          cancelButtonColor: '#6b7280',
+          confirmButtonText: 'Ya, Kembalikan',
+          cancelButtonText: 'Batal'
+        });
+
+        if (result.isConfirmed) {
+          const item = dataPeminjaman[index];
+          item.status = 'kembali';
+          item.tanggalKembali = new Date().toISOString().split('T')[0];
+          dataKembali.push(item);
+          dataPeminjaman.splice(index, 1);
+          
+          // Simpan data ke localStorage
+          saveAllData();
+          
+          try {
+            // Kirim data ke Google Sheets
+            const response = await fetch(scriptUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                action: 'return',
+                data: item
+              })
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+              console.error('Gagal menyimpan ke Google Sheets:', result.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+          
+          renderTabel();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Barang berhasil dikembalikan!',
+            confirmButtonColor: '#10b981',
+            timer: 2000,
+            timerProgressBar: true
+          });
+        }
+      }
+
+      async function editBarang(index) {
+        const item = dataPeminjaman[index];
+        
+        // Buat opsi dropdown untuk petugas, peminjam, dan barang
+        let petugasOptions = '';
+        for (const code in petugasData) {
+          petugasOptions += `<option value="${code}" ${item.petugas === code ? 'selected' : ''}>${code} - ${petugasData[code].name}</option>`;
+        }
+        
+        let peminjamOptions = '';
+        for (const code in peminjamData) {
+          peminjamOptions += `<option value="${code}" ${item.peminjam === code ? 'selected' : ''}>${code} - ${peminjamData[code].name}</option>`;
+        }
+        
+        let barangOptions = '';
+        for (const code in barangData) {
+          barangOptions += `<option value="${code}" ${item.barang === code ? 'selected' : ''}>${code} - ${barangData[code].name}</option>`;
+        }
+        
+        const { value: formValues } = await Swal.fire({
+          title: 'Edit Data Peminjaman',
+          html: `
+            <div class="text-left mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Petugas</label>
+              <select id="edit-petugas" class="custom-select w-full px-3 py-2 border rounded-md">
+                <option value="" disabled>Pilih Petugas</option>
+                ${petugasOptions}
+              </select>
+            </div>
+            <div class="text-left mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Peminjam</label>
+              <select id="edit-peminjam" class="custom-select w-full px-3 py-2 border rounded-md">
+                <option value="" disabled>Pilih Peminjam</option>
+                ${peminjamOptions}
+              </select>
+            </div>
+            <div class="text-left mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Barang</label>
+              <select id="edit-barang" class="custom-select w-full px-3 py-2 border rounded-md">
+                <option value="" disabled>Pilih Barang</option>
+                ${barangOptions}
+              </select>
+            </div>
+            <div class="text-left mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Seri (pisahkan koma)</label>
+              <input id="edit-seri" class="w-full px-3 py-2 border rounded-md" value="${item.nomorSeri.join(', ')}">
+            </div>
+            <div class="text-left">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Pinjam</label>
+              <input type="date" id="edit-tanggal" class="w-full px-3 py-2 border rounded-md" value="${item.tanggal}">
+            </div>
+          `,
+          focusConfirm: false,
+          confirmButtonColor: '#3b82f6',
+          preConfirm: () => {
+            const petugasBaru = document.getElementById('edit-petugas').value;
+            const peminjamBaru = document.getElementById('edit-peminjam').value;
+            const barangBaru = document.getElementById('edit-barang').value;
+            const seriBaru = document.getElementById('edit-seri').value.split(',').map(n => n.trim());
+            const tanggalBaru = document.getElementById('edit-tanggal').value;
+
+            if (!petugasBaru || !peminjamBaru || !barangBaru || seriBaru.length === 0) {
+              Swal.showValidationMessage('Semua field harus diisi!');
+              return false;
+            }
+
+            // Cek duplikat seri untuk barang yang sama (kecuali data yang sedang diedit)
+            for (let i = 0; i < dataPeminjaman.length; i++) {
+              if (i !== index) {
+                for (const seri of seriBaru) {
+                  if (dataPeminjaman[i].nomorSeri.includes(seri) && dataPeminjaman[i].barang === barangBaru) {
+                    Swal.showValidationMessage(`Nomor seri ${seri} sudah dipinjam untuk barang ini!`);
+                    return false;
+                  }
+                }
+              }
+            }
+
+            return {
+              petugas: petugasBaru,
+              peminjam: peminjamBaru,
+              barang: barangBaru,
+              nomorSeri: seriBaru,
+              tanggal: tanggalBaru
+            };
+          }
+        });
+
+        if (formValues) {
+          item.petugas = formValues.petugas;
+          item.peminjam = formValues.peminjam;
+          item.barang = formValues.barang;
+          item.nomorSeri = formValues.nomorSeri;
+          item.jumlah = formValues.nomorSeri.length;
+          item.tanggal = formValues.tanggal;
+
+          // Simpan data ke localStorage
+          saveAllData();
+          
+          try {
+            // Kirim data ke Google Sheets
+            const response = await fetch(scriptUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                action: 'update',
+                index: index,
+                data: item
+              })
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+              console.error('Gagal menyimpan ke Google Sheets:', result.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+          
+          renderTabel();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Data berhasil diedit!',
+            confirmButtonColor: '#3b82f6',
+            timer: 1500,
+            timerProgressBar: true
+          });
+        }
+      }
+      
+      async function resetData() {
+        const result = await Swal.fire({
+          title: 'Reset Semua Data',
+          text: 'Apakah Anda yakin ingin menghapus semua data peminjaman dan pengembalian?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#6b7280',
+          confirmButtonText: 'Ya, Reset',
+          cancelButtonText: 'Batal'
+        });
+
+        if (result.isConfirmed) {
+          dataPeminjaman = [];
+          dataKembali = [];
+          
+          // Hapus data dari localStorage
+          localStorage.removeItem('dataPeminjaman');
+          localStorage.removeItem('dataKembali');
+          
+          try {
+            // Kirim permintaan reset ke Google Sheets
+            const response = await fetch(scriptUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                action: 'reset'
+              })
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+              console.error('Gagal mereset data di Google Sheets:', result.message);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+          
+          renderTabel();
+          
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Semua data telah direset!',
+            confirmButtonColor: '#10b981',
+            timer: 1500,
+            timerProgressBar: true
+          });
+        }
+      }
+      
+      function formatDate(dateString) {
+        if (!dateString) return '-';
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        return new Date(dateString).toLocaleDateString('id-ID', options);
+      }
+    </script>
+  </body>
+</html>
